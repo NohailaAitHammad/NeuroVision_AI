@@ -1,0 +1,2 @@
+[console_scripts]
+neurovision-ai = neurovision_ai:main

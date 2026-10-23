@@ -1,0 +1,36 @@
+[project]
+name = "neurovision-ai"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+      "pandas",
+      "numpy",
+      "matplotlib",
+      "seaborn",
+      "scikit-learn",
+      "jupyter",
+      "jupyterlab",
+      "ipykernel",
+      "python-dotenv",
+      "setuptools<81",
+      "imblearn",
+      "streamlit>=1.65.0",
+      "tensorflow>=2.21.0",
+      "opencv-python>=5.0.0.93",
+      "pillow>=12.3.0",
+      "kagglehub",
+      "opencv-python-headless",
+      "pydot",
+]
+
+[project.scripts]
+neurovision-ai = "neurovision_ai:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = []

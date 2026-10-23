@@ -1,0 +1,7 @@
+pandas
+kagglehub
+matplotlib
+seaborn
+opencv-python
+tensorflow
+scikit-learn
