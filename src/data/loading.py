@@ -11,6 +11,9 @@ from src.config import (
       LABELS_BY_FOLDER,
       VALID_EXTENSIONS,
 )
+import tensorflow as tf
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+from sklearn.model_selection import train_test_split
 
 
 
@@ -30,64 +33,121 @@ def charger_dataset_path():
       return Path(dataset_path)
 
 
-def verifier_chargement(dataset_path, extensions_valides=VALID_EXTENSIONS, labels_par_dossier=LABELS_BY_FOLDER):
-
-      """Charge les images valides et leurs labels,en conservant la logique initiale."""
-
-      num_skiped = 0
-      num_corrompu = 0
-      images= []
+def check_data(path, extensions_valides, labels_par_dossier):
+      images = []
       labels = []
-      try:
-            data_dir = pathlib.Path(dataset_path)
-            for folder in data_dir.iterdir():
-                  if folder.is_dir():
-                        for file in folder.iterdir():
-                              if not file.is_file():
-                                    continue
-                              
-                              if file.is_file() and not file.name.lower().endswith(extensions_valides):
-                                    num_skiped +=1
-                                    continue
-                              
-                              else:
-                                    image = cv2.imread(str(file))
-            
-                                    if image is None:
-                                          num_corrompu +=1
-                                          continue
-                                    
-                                    else:
-                                          image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                                          images.append(image)
-                                          label = labels_par_dossier[folder.name]
-                                          labels.append(label)
-            
-            print('nombre de fichiers invlaid', num_skiped)
-            print('nombre de fichiers corrompus', num_corrompu)
-      except (FileNotFoundError):
-            print("Erreur : Le fichier n'existe pas.")
-      except Exception as e:
-            print(f"Erreur inattendue : {e}")
+
+      num_skipped = 0
+      num_corrompu = 0
+
+      data_dir = Path(path)
+      extensions_valides = {
+            ext.lower() if ext.startswith(".") else f".{ext.lower()}"
+            for ext in extensions_valides
+      }
+
+      for folder in data_dir.iterdir():
+            if not folder.is_dir():
+                  continue
+
+            # Ignorer les dossiers qui ne correspondent pas aux classes
+            if folder.name not in labels_par_dossier:
+                  continue
+
+            for file in folder.iterdir():
+                  if not file.is_file():
+                        continue
+
+                  # Vérifier l'extension avant de décoder l'image
+                  if file.suffix.lower() not in extensions_valides:
+                        num_skipped += 1
+                        continue
+
+                  image = cv2.imread(str(file))
+
+                  if image is None:
+                        num_corrompu += 1
+                        continue
+
+                  # BGR -> RGB
+                  image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+                  # Redimensionnement pour MobileNetV2
+                  image = cv2.resize(image, (224, 224))
+
+                  images.append(image)
+                  labels.append(labels_par_dossier[folder.name])
+
+      print(f"Fichiers ignorés : {num_skipped}")
+      print(f"Images corrompues : {num_corrompu}")
+      print(f"Images chargées : {len(images)}")
+      print(f"Labels chargés : {len(labels)}")
 
       return images, labels
 
-def preparer_data(image_size, images, labels):
 
-      """Redimensionne les images et convertit les listes en tableaux NumPy."""
+def preparing_data(images, labels,image_size=(224, 224)):
 
       images_resized =[]
-
+      
       for image in images:
             resized = cv2.resize(image, image_size, interpolation=cv2.INTER_LINEAR)
             images_resized.append(resized)
       
-      images_array_2d = np.array(images_resized)
+      X = np.asarray(images_resized, dtype=np.uint8)
       
-      labeles_array_2d = np.array(labels)
-      
-      return images_array_2d, labeles_array_2d
+      y = np.asarray(labels, dtype=np.int32)
 
+      if len(X) != len(y):
+            raise ValueError(
+                  "Le nombre d'images doit correspondre au nombre de labels."
+            )
+      
+      return X, y
+
+def spliting_data(X, y, random_state=42):
+
+      X_train, X_tmp, y_train, y_tmp = train_test_split(X, y, test_size=0.20, stratify=y, random_state=random_state)
+
+      X_test, X_val, y_test, y_val = train_test_split(X_tmp, y_tmp, test_size=0.5,  stratify=y_tmp, random_state=random_state)
+
+      print(X_train.shape, X_test.shape, X_val.shape)
+
+      print(y_train.shape, y_test.shape, y_val.shape)
+
+      return  X_train, X_test, X_val, y_train, y_test, y_val
+
+
+def  normalisation(X, seuil):
+      return X.astype('float32') / seuil
+
+
+def preprocess(image,label, cnn=True):
+      # image = resize(image,image_size)
+      image = tf.cast(image, tf.float32)
+
+      # Prétraitement officiel de MobileNetV2 : pixels vers [-1, 1]
+      if cnn:
+            image = tf.cast(image, tf.float32) / 255.0
+      else:
+            image = preprocess_input(image)
+
+      label = tf.cast(label, tf.int32)
+
+      return image, label
+
+def prep(X, y, training=True, random_state=42, batch_size=32):
+
+      X_ds = tf.data.Dataset.from_tensor_slices((X, y))
+
+      if training:
+            X_ds = X_ds.shuffle(buffer_size=len(X), seed=random_state, reshuffle_each_iteration=True)
+
+      X_ds = X_ds.map(preprocess, num_parallel_calls=tf.data.AUTOTUNE)
+      
+      X_ds = X_ds.batch(batch_size=batch_size).prefetch(buffer_size=tf.data.AUTOTUNE)
+
+      return X_ds
 
 def print_class_counts(labels, labels_par_dossier=LABELS_BY_FOLDER):
       effectifs = Counter(labels)
