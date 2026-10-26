@@ -19,8 +19,8 @@ def build_data_augmentation():
             layers.RandomZoom(0.1)
             ], name="data_augmentation")
 
-def  build_cnn(data_augmentation, image_size=IMAGE_SIZE):
-      
+def  build_cnn(image_size=IMAGE_SIZE):
+      data_augmentation= build_data_augmentation()
       # API Sequentiel
       model = models.Sequential()
       model.add(layers.Input(shape=image_size + (3,)))
