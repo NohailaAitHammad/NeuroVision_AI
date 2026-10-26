@@ -51,56 +51,6 @@ def log_transfer_learning_experiment(model_path, results, training_duration, epo
             print("Run Mlflow enregistré : ", run.info.run_id)
 
 
-def enregistrer_champion_mlflow(best_model_name, best_model, best_cv_f1):
-
-      mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-
-      mlflow.set_experiment('NeuroVision AI')
-
-      model_registry_name = 'NeuroVision AI'
-
-      #enregistrer me pipeline champion dans un nouveau run
-
-      with mlflow.start_run(run_name=f"champion_{best_model_name}") as run :
-
-            mlflow.log_param('champion_model', best_model_name)
-
-            mlflow.log_metric('cv_f1_macro', float(best_cv_f1))
-
-            mlflow.sklearn.log_model(
-                  sk_model=best_model,
-                  name="model",
-                  serialization_format='cloudpickle'
-            )
-
-            champion_run_id = run.info.run_id
-
-      # Enregistrer le model dans le model Registry
-
-      model_uri = f"runs:/{champion_run_id}/model"
-
-      model_version = mlflow.register_model(
-            model_uri=model_uri,
-            name=model_registry_name
-      )
-
-      # Attribuer l'alisa champion a cette version
-
-      client = MlflowClient()
-
-      client.set_registered_model_alias(
-            name=model_registry_name,
-            alias='champion',
-            version=model_version.version
-      )
-
-      print("\nChampion enregistrer avec success")
-      print("Model : ", best_model_name)
-      print('CV_F1', best_cv_f1)
-      print('Version MLflow', model_version.version)
-      print('Alisas : champion')
-
-
 def enregistrer_champion_mlflow(
       best_model_name,
       best_model,

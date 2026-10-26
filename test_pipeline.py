@@ -16,9 +16,6 @@ model_paths = {
       "Transfer_Learning": TRANSFER_MODELS_DIR / BEST_MODEL_FILENAME,
       "Fine_Tuning": FINE_TUNING_MODELS_DIR / BEST_MODEL_FILENAME,
 }
-# "CNN": cnn_model,
-#     "Transfer_Learning": transfer_model,
-#     "Fine_Tuning": fine_tuning_model
 
 dataset_path = charger_dataset_path()
 
@@ -124,8 +121,8 @@ results = evaluate_model(
       output_dir=TRANSFER_ARTIFACTS_DIR
 )
 
-scores['Transfer_learning'] = results['f1_weighted']
-models['Transfer_learning'] = transfer_model
+scores['Transfer_Learning'] = results['f1_weighted']
+models['Transfer_Learning'] = transfer_model
 
 # Garder le modèle Transfer Learning indépendant
 transfer_model.save(
@@ -142,7 +139,7 @@ fine_tuning_model.set_weights(
 )
 
 # mlflow
-log_transfer_learning_experiment(str(MLFLOW_EXPERIMENT_TRANSFER/BEST_MODEL_FILENAME), results,training_duration, EPOCHS, BATCH_SIZE,TRANSFER_LEARNING_RATE, run_name=MLFLOW_EXPERIMENT_TRANSFER, artifact_dict=True)
+log_transfer_learning_experiment(str(TRANSFER_MODELS_DIR / BEST_MODEL_FILENAME), results,training_duration, EPOCHS, BATCH_SIZE,TRANSFER_LEARNING_RATE, run_name=MLFLOW_EXPERIMENT_TRANSFER, artifact_dict=True)
 
 ###### Fine Tuning
 
@@ -193,7 +190,7 @@ scores['Fine_Tuning'] = results['f1_weighted']
 models['Fine_Tuning'] = fine_tuning_model
 
 # mlflow
-log_transfer_learning_experiment(str(MLFLOW_EXPERIMENT_FINE_TUNING/BEST_MODEL_FILENAME), results,training_duration, EPOCHS, BATCH_SIZE,FINE_TUNING_LEARNING_RATE, run_name=MLFLOW_EXPERIMENT_FINE_TUNING, artifact_dict=True)
+log_transfer_learning_experiment(str(FINE_TUNING_MODELS_DIR/BEST_MODEL_FILENAME), results,training_duration, EPOCHS, BATCH_SIZE,FINE_TUNING_LEARNING_RATE, run_name=MLFLOW_EXPERIMENT_FINE_TUNING, artifact_dict=True)
 
 
 champion_name = max(scores, key=scores.get)
