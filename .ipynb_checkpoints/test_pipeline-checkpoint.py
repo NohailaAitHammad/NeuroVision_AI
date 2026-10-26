@@ -26,9 +26,9 @@ images_array_2d, labeles_array_2d = preparing_data(images=images, labels=labels,
 
 X_train, X_test, X_val, y_train, y_test, y_val = spliting_data(images_array_2d, labeles_array_2d, random_state=RANDOM_SEED)
 
-Train_ds =  prep(X_train, y_train, training=True)
-Test_ds = prep(X_test, y_test, training=False)
-Val_ds = prep(X_val, y_val, training=False)
+Train_ds =  prep(X_train, y_train, training=True, cnn=True)
+Test_ds = prep(X_test, y_test, training=False, cnn=True)
+Val_ds = prep(X_val, y_val, training=False, cnn=True)
 print(Train_ds, Test_ds, Val_ds)
 
 def build_artifact_dict(output_dir):
@@ -108,6 +108,10 @@ print('CNN run successfely ')
 
 ###### Transfer Learning
 
+Train_ds =  prep(X_train, y_train, training=True, cnn=False)
+Test_ds = prep(X_test, y_test, training=False, cnn=False)
+Val_ds = prep(X_val, y_val, training=False, cnn=False)
+print(Train_ds, Test_ds, Val_ds)
 
 # 1. Construire le modèle
 transfer_model, base_model= build_model()

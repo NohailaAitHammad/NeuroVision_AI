@@ -1,15 +1,15 @@
 {
     "metrics": {
-        "accuracy": 0.2849002849002849,
-        "precision_macro": 0.07122507122507123,
+        "accuracy": 0.23076923076923078,
+        "precision_macro": 0.057692307692307696,
         "recall_macro": 0.25,
-        "f1_weighted": 0.12634158975622392
+        "f1_weighted": 0.08653846153846154
     },
     "classification_report": {
         "glioma": {
-            "precision": 0.0,
-            "recall": 0.0,
-            "f1-score": 0.0,
+            "precision": 0.23076923076923078,
+            "recall": 1.0,
+            "f1-score": 0.375,
             "support": 162.0
         },
         "meningioma": {
@@ -19,9 +19,9 @@
             "support": 164.0
         },
         "notumor": {
-            "precision": 0.2849002849002849,
-            "recall": 1.0,
-            "f1-score": 0.4434589800443459,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1-score": 0.0,
             "support": 200.0
         },
         "pituitary": {
@@ -30,43 +30,43 @@
             "f1-score": 0.0,
             "support": 176.0
         },
-        "accuracy": 0.2849002849002849,
+        "accuracy": 0.23076923076923078,
         "macro avg": {
-            "precision": 0.07122507122507123,
+            "precision": 0.057692307692307696,
             "recall": 0.25,
-            "f1-score": 0.11086474501108648,
+            "f1-score": 0.09375,
             "support": 702.0
         },
         "weighted avg": {
-            "precision": 0.0811681723362635,
-            "recall": 0.2849002849002849,
-            "f1-score": 0.12634158975622392,
+            "precision": 0.05325443786982249,
+            "recall": 0.23076923076923078,
+            "f1-score": 0.08653846153846154,
             "support": 702.0
         }
     },
     "confusion_matrix": [
         [
-            0,
-            0,
             162,
+            0,
+            0,
             0
         ],
         [
-            0,
-            0,
             164,
+            0,
+            0,
             0
         ],
         [
-            0,
-            0,
             200,
+            0,
+            0,
             0
         ],
         [
-            0,
-            0,
             176,
+            0,
+            0,
             0
         ]
     ],

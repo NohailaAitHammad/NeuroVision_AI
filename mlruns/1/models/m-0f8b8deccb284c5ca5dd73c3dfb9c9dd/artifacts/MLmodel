@@ -1,4 +1,4 @@
-artifact_path: /workspace/NeuroVision_AI/mlruns/1/models/m-870117652d954fba97393a924d5aa1e9/artifacts
+artifact_path: /workspace/NeuroVision_AI/mlruns/1/models/m-0f8b8deccb284c5ca5dd73c3dfb9c9dd/artifacts
 flavors:
   python_function:
     data: data
@@ -14,9 +14,9 @@ flavors:
     model_type: keras
     save_format: tf
 mlflow_version: 3.17.2
-model_id: m-870117652d954fba97393a924d5aa1e9
+model_id: m-0f8b8deccb284c5ca5dd73c3dfb9c9dd
 model_size_bytes: 21923674
-model_uuid: m-870117652d954fba97393a924d5aa1e9
+model_uuid: m-0f8b8deccb284c5ca5dd73c3dfb9c9dd
 prompts: null
-run_id: 4cdf03e395514c8fabd6258434deedd2
-utc_time_created: '2026-10-26 22:03:41.681297'
+run_id: 0f720f8f24394eda9cfa883921371458
+utc_time_created: '2026-10-26 23:34:09.429312'
