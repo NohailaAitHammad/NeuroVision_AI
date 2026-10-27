@@ -1,0 +1,8 @@
+nohup: ignoring input
+Registry store URI not provided. Using backend store URI.
+2026/10/26 23:17:05 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/10/26 23:17:05 INFO mlflow.store.db.utils: Updating database tables
+[MLflow] Security middleware enabled with default settings (localhost-only). To allow connections from other hosts, use --host 0.0.0.0 and configure --allowed-hosts and --cors-allowed-origins.
+2026/10/26 23:17:13 INFO mlflow.server.jobs.executor_registry: Available backends after discovery: local
+2026/10/26 23:17:13 INFO mlflow.server.jobs.executor_registry: Job executor backend 'local' passed requirements check
+2026/10/26 23:17:13 ERROR:    [Errno 98] Address already in use

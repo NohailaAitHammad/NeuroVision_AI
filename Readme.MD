@@ -156,3 +156,15 @@ Les performances dépendent de la qualité, de la représentativité et de l’�
 - `metrics.json` généré depuis les résultats réels
 - Interface Streamlit testée
 - Documentation et instructions vérifiées
+
+
+```bash
+streamlit run streamlit_app.py
+deactivate
+nohup mlflow server \
+    --backend-store-uri sqlite:///mlflow.db \
+    --default-artifact-root ./mlruns \
+    --host 0.0.0.0 \
+    --port 5000 > mlflow.log 2>&1 &
+    
+```

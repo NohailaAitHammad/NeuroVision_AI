@@ -126,14 +126,16 @@ def preprocess(image,label, cnn=True):
 
       return image, label
 
-def prep(X, y, training=True, random_state=RANDOM_SEED, batch_size=BATCH_SIZE):
+def prep(X, y, training=True, cnn=True,  random_state=RANDOM_SEED, batch_size=BATCH_SIZE):
 
       X_ds = tf.data.Dataset.from_tensor_slices((X, y))
 
       if training:
             X_ds = X_ds.shuffle(buffer_size=len(X), seed=random_state, reshuffle_each_iteration=True)
 
-      X_ds = X_ds.map(preprocess, num_parallel_calls=tf.data.AUTOTUNE)
+      X_ds = X_ds.map(
+          lambda image, label: preprocess(image, label, cnn=cnn),
+        num_parallel_calls=tf.data.AUTOTUNE,)
 
       X_ds = X_ds.batch(batch_size=batch_size).prefetch(buffer_size=tf.data.AUTOTUNE)
 

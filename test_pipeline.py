@@ -26,16 +26,33 @@ images_array_2d, labeles_array_2d = preparing_data(images=images, labels=labels,
 
 X_train, X_test, X_val, y_train, y_test, y_val = spliting_data(images_array_2d, labeles_array_2d, random_state=RANDOM_SEED)
 
-Train_ds =  prep(X_train, y_train, training=True)
-Test_ds = prep(X_test, y_test, training=False)
-Val_ds = prep(X_val, y_val, training=False)
+Train_ds =  prep(X_train, y_train, training=True, cnn=True)
+Test_ds = prep(X_test, y_test, training=False, cnn=True)
+Val_ds = prep(X_val, y_val, training=False, cnn=True)
 print(Train_ds, Test_ds, Val_ds)
 
+def build_artifact_dict(output_dir):
+    """
+    Construit un dictionnaire des artefacts déjà générés.
+    Format : nom_du_fichier -> chemin_du_fichier.
+    """
+    output_dir = Path(output_dir)
+    artifacts = {}
+
+    if not output_dir.exists():
+        return artifacts
+
+    for file_path in output_dir.rglob("*"):
+        if file_path.is_file() and file_path.suffix.lower() in {
+            ".png", ".json", ".csv", ".txt"
+        }:
+            artifacts[file_path.name] = str(file_path)
+
+    return artifacts
 
 ##### CNN
-
 # 1. Construire le modèle
-cnn_model = build_cnn()
+cnn_model = build_cnn(IMAGE_SIZE)
 
 # 2. Compiler
 cnn_model = compile_mode(cnn_model, learning_rate=CNN_LEARNING_RATE)
@@ -72,16 +89,29 @@ results = evaluate_model(
       output_dir=CNN_ARTIFACTS_DIR
 )
 
-scores['CNN'] = results['f1_weighted']
+scores['CNN'] = results['metrics']['f1_weighted']
 models['CNN'] = cnn_model
 
-# mlflow
-log_transfer_learning_experiment(str(CNN_MODELS_DIR/BEST_MODEL_FILENAME), results,training_duration, EPOCHS, BATCH_SIZE,CNN_LEARNING_RATE, run_name=MLFLOW_EXPERIMENT_CNN, artifact_dict=True)
+cnn_model_path = CNN_MODELS_DIR / BEST_MODEL_FILENAME
 
+if not cnn_model_path.exists():
+    cnn_model_path.parent.mkdir(parents=True, exist_ok=True)
+    cnn_model.save(cnn_model_path)
+
+cnn_artifacts = build_artifact_dict(CNN_ARTIFACTS_DIR)
+
+# mlflow
+log_transfer_learning_experiment(str(CNN_MODELS_DIR/BEST_MODEL_FILENAME), results,training_duration, EPOCHS, BATCH_SIZE,CNN_LEARNING_RATE, run_name=MLFLOW_EXPERIMENT_CNN, artifact_dict=cnn_artifacts)
+
+print('CNN run successfely ')
 
 
 ###### Transfer Learning
 
+Train_ds =  prep(X_train, y_train, training=True, cnn=False)
+Test_ds = prep(X_test, y_test, training=False, cnn=False)
+Val_ds = prep(X_val, y_val, training=False, cnn=False)
+print(Train_ds, Test_ds, Val_ds)
 
 # 1. Construire le modèle
 transfer_model, base_model= build_model()
@@ -121,8 +151,16 @@ results = evaluate_model(
       output_dir=TRANSFER_ARTIFACTS_DIR
 )
 
-scores['Transfer_Learning'] = results['f1_weighted']
+scores['Transfer_Learning'] = results['metrics']['f1_weighted']
 models['Transfer_Learning'] = transfer_model
+
+transfer_learning_model_path = TRANSFER_MODELS_DIR / BEST_MODEL_FILENAME
+
+if not transfer_learning_model_path.exists():
+    transfer_learning_model_path.parent.mkdir(parents=True, exist_ok=True)
+    transfer_model.save(transfer_learning_model_path)
+
+transfer_leanring_artifacts = build_artifact_dict(TRANSFER_ARTIFACTS_DIR)
 
 # Garder le modèle Transfer Learning indépendant
 transfer_model.save(
@@ -139,8 +177,9 @@ fine_tuning_model.set_weights(
 )
 
 # mlflow
-log_transfer_learning_experiment(str(TRANSFER_MODELS_DIR / BEST_MODEL_FILENAME), results,training_duration, EPOCHS, BATCH_SIZE,TRANSFER_LEARNING_RATE, run_name=MLFLOW_EXPERIMENT_TRANSFER, artifact_dict=True)
+log_transfer_learning_experiment(str(TRANSFER_MODELS_DIR / BEST_MODEL_FILENAME), results,training_duration, EPOCHS, BATCH_SIZE,TRANSFER_LEARNING_RATE, run_name=MLFLOW_EXPERIMENT_TRANSFER, artifact_dict=transfer_leanring_artifacts)
 
+print('Transfer Learning run successfely ')
 ###### Fine Tuning
 
 # Récupérer la base MobileNetV2 du modèle copié
@@ -186,13 +225,25 @@ results = evaluate_model(
       class_names=CLASS_NAMES,
       output_dir=FINE_TUNING_ARTIFACTS_DIR
 )
-scores['Fine_Tuning'] = results['f1_weighted']
+scores['Fine_Tuning'] = results['metrics']['f1_weighted']
 models['Fine_Tuning'] = fine_tuning_model
 
+fine_tuning_model_path = FINE_TUNING_MODELS_DIR / BEST_MODEL_FILENAME
+
+if not fine_tuning_model_path.exists():
+    fine_tuning_model_path.parent.mkdir(parents=True, exist_ok=True)
+    fine_tuning_model.save(fine_tuning_model_path)
+
+fine_tuning_artifacts = build_artifact_dict(FINE_TUNING_ARTIFACTS_DIR)
+
+# Garder le modèle Transfer Learning indépendant
+transfer_model.save(
+      TRANSFER_MODELS_DIR / BEST_MODEL_FILENAME
+)
 # mlflow
-log_transfer_learning_experiment(str(FINE_TUNING_MODELS_DIR/BEST_MODEL_FILENAME), results,training_duration, EPOCHS, BATCH_SIZE,FINE_TUNING_LEARNING_RATE, run_name=MLFLOW_EXPERIMENT_FINE_TUNING, artifact_dict=True)
+log_transfer_learning_experiment(str(FINE_TUNING_MODELS_DIR/BEST_MODEL_FILENAME), results,training_duration, EPOCHS, BATCH_SIZE,FINE_TUNING_LEARNING_RATE, run_name=MLFLOW_EXPERIMENT_FINE_TUNING, artifact_dict=fine_tuning_artifacts)
 
-
+print('Fine Tuning  run successfely ')
 champion_name = max(scores, key=scores.get)
 champion_f1 = scores[champion_name]
 
@@ -214,3 +265,4 @@ enregistrer_champion_mlflow(best_model_name=champion_name, best_model=champion_m
 champion = mlflow.tensorflow.load_model(
       "models:/NeuroVision_AI_Champion@champion"
 )
+print('Champion mlflow run successfely ')

@@ -1,0 +1,22 @@
+artifact_path: /workspace/NeuroVision_AI/mlruns/1/models/m-0f8b8deccb284c5ca5dd73c3dfb9c9dd/artifacts
+flavors:
+  python_function:
+    data: data
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.tensorflow
+    python_version: 3.10.12
+  tensorflow:
+    code: null
+    data: data
+    keras_version: 2.21.0
+    model_type: keras
+    save_format: tf
+mlflow_version: 3.17.2
+model_id: m-0f8b8deccb284c5ca5dd73c3dfb9c9dd
+model_size_bytes: 21923674
+model_uuid: m-0f8b8deccb284c5ca5dd73c3dfb9c9dd
+prompts: null
+run_id: 0f720f8f24394eda9cfa883921371458
+utc_time_created: '2026-10-26 23:34:09.429312'
